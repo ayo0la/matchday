@@ -1,0 +1,30 @@
+.wrap {
+  display: flex;
+  gap: 8px;
+  padding: 14px 24px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border-divider);
+  scrollbar-width: none;
+}
+
+.wrap::-webkit-scrollbar { display: none; }
+
+.pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  background: #141428;
+  color: var(--text-muted);
+  border: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.pill:hover { color: var(--text-secondary); }
+
+.pillActive {
+  background: var(--blue);
+  color: var(--text);
+}

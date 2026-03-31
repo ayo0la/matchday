@@ -1,0 +1,9 @@
+.badge {
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.barca {
+  background: linear-gradient(135deg, #004D98, #A50044);
+}
