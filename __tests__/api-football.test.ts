@@ -1,4 +1,4 @@
-import { fetchScores, getCurrentSeason, type NormalizedMatch } from '@/lib/api-football'
+import { fetchScores, fetchStandings, getCurrentSeason, type NormalizedMatch } from '@/lib/api-football'
 
 const RAW_FIXTURE = {
   fixture: {
@@ -13,6 +13,14 @@ const RAW_FIXTURE = {
     away: { id: 49, name: 'Chelsea' },
   },
   goals: { home: 2, away: 1 },
+}
+
+const RAW_STANDING = {
+  rank: 1,
+  team: { id: 529, name: 'Barcelona' },
+  all: { played: 28, win: 19, draw: 5, lose: 4 },
+  goalsDiff: 38,
+  points: 62,
 }
 
 describe('getCurrentSeason', () => {
@@ -73,5 +81,46 @@ describe('fetchScores', () => {
   it('throws on non-ok response', async () => {
     global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 429 })
     await expect(fetchScores(39, 2025, '2026-03-31')).rejects.toThrow('API-Football error: 429')
+  })
+})
+
+describe('fetchStandings', () => {
+  beforeEach(() => {
+    process.env.APIFOOTBALL_KEY = 'test-key'
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        response: [{ league: { standings: [[RAW_STANDING]] } }]
+      }),
+    })
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
+    delete process.env.APIFOOTBALL_KEY
+  })
+
+  it('calls standings endpoint with correct params', async () => {
+    await fetchStandings(140, 2025)
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://v3.football.api-sports.io/standings?league=140&season=2025',
+      expect.anything()
+    )
+  })
+
+  it('returns normalized standings', async () => {
+    const standings = await fetchStandings(140, 2025)
+    expect(standings).toHaveLength(1)
+    expect(standings[0]).toMatchObject({
+      rank: 1,
+      teamId: 529,
+      teamName: 'Barcelona',
+      played: 28,
+      wins: 19,
+      draws: 5,
+      losses: 4,
+      goalDifference: 38,
+      points: 62,
+    })
   })
 })

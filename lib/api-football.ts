@@ -68,7 +68,6 @@ interface RawFixture {
   goals: { home: number | null; away: number | null }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface RawStanding {
   rank: number
   team: { id: number; name: string }
@@ -95,6 +94,20 @@ function normalizeMatch(raw: RawFixture): NormalizedMatch {
   }
 }
 
+function normalizeStanding(raw: RawStanding): NormalizedStanding {
+  return {
+    rank: raw.rank,
+    teamId: raw.team.id,
+    teamName: raw.team.name,
+    played: raw.all.played,
+    wins: raw.all.win,
+    draws: raw.all.draw,
+    losses: raw.all.lose,
+    goalDifference: raw.goalsDiff,
+    points: raw.points,
+  }
+}
+
 // ─── Fetch functions ──────────────────────────────────────────────────────────
 
 async function apiFetch(path: string): Promise<unknown> {
@@ -112,4 +125,15 @@ export async function fetchScores(
     `/fixtures?league=${leagueId}&season=${season}&date=${date}`
   )) as { response: RawFixture[] }
   return data.response.map(normalizeMatch)
+}
+
+export async function fetchStandings(
+  leagueId: number,
+  season: number
+): Promise<NormalizedStanding[]> {
+  const data = (await apiFetch(
+    `/standings?league=${leagueId}&season=${season}`
+  )) as { response: Array<{ league: { standings: RawStanding[][] } }> }
+  const rows = data.response[0]?.league.standings[0] ?? []
+  return rows.map(normalizeStanding)
 }
