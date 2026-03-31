@@ -59,9 +59,8 @@ export default function ScoresPage() {
         {matches.map((m) => <MatchCard key={m.id} match={m} />)}
       </main>
 
-      <footer style={{ padding: '12px 24px', borderTop: '1px solid var(--border-divider)', display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ color: '#333', fontSize: 10, letterSpacing: 1 }}>DATA: API-FOOTBALL</span>
-        <span style={{ color: '#333', fontSize: 10 }}>REFRESHES EVERY 60s</span>
+      <footer style={{ padding: '12px 24px', borderTop: '1px solid var(--border-divider)', textAlign: 'center' }}>
+        <span style={{ color: '#333', fontSize: 10, letterSpacing: 1 }}>DATA: API-FOOTBALL · REFRESHES EVERY 60s</span>
       </footer>
     </>
   )

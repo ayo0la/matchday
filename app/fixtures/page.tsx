@@ -50,7 +50,10 @@ export default function FixturesPage() {
 
     try {
       const results = await Promise.all(
-        leagueIds.map((id) => fetch(`/api/fixtures?league=${id}`).then((r) => r.json()))
+        leagueIds.map((id) =>
+          fetch(`/api/fixtures?league=${id}`)
+            .then((r) => { if (!r.ok) throw new Error(); return r.json() })
+        )
       )
       const all: NormalizedFixture[] = results.flat()
       setFixtures(all)
