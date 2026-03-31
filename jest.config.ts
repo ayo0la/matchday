@@ -6,7 +6,7 @@ const createJestConfig = nextJest({ dir: './' })
 const config: Config = {
   testEnvironment: 'node',
   moduleNameMapper: { '^@/(.*)$': '<rootDir>/$1' },
-  testMatch: ['**/__tests__/**/*.[jt]s?(x)'],
+  testMatch: ['<rootDir>/__tests__/**/*.[jt]s?(x)'],
 }
 
 export default createJestConfig(config)
