@@ -108,6 +108,20 @@ function normalizeStanding(raw: RawStanding): NormalizedStanding {
   }
 }
 
+function normalizeFixture(raw: RawFixture): NormalizedFixture {
+  const dt = new Date(raw.fixture.date)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  const kickoff = `${pad(dt.getUTCHours())}:${pad(dt.getUTCMinutes())}`
+  return {
+    id: raw.fixture.id,
+    date: raw.fixture.date.slice(0, 10), // YYYY-MM-DD
+    kickoff,
+    homeTeam: raw.teams.home,
+    awayTeam: raw.teams.away,
+    leagueId: raw.league.id,
+  }
+}
+
 // ─── Fetch functions ──────────────────────────────────────────────────────────
 
 async function apiFetch(path: string): Promise<unknown> {
@@ -136,4 +150,16 @@ export async function fetchStandings(
   )) as { response: Array<{ league: { standings: RawStanding[][] } }> }
   const rows = data.response[0]?.league.standings[0] ?? []
   return rows.map(normalizeStanding)
+}
+
+export async function fetchFixtures(
+  leagueId: number,
+  season: number,
+  from: string, // YYYY-MM-DD
+  to: string    // YYYY-MM-DD
+): Promise<NormalizedFixture[]> {
+  const data = (await apiFetch(
+    `/fixtures?league=${leagueId}&season=${season}&from=${from}&to=${to}&status=NS`
+  )) as { response: RawFixture[] }
+  return data.response.map(normalizeFixture)
 }

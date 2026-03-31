@@ -1,4 +1,4 @@
-import { fetchScores, fetchStandings, getCurrentSeason, type NormalizedMatch } from '@/lib/api-football'
+import { fetchScores, fetchStandings, fetchFixtures, getCurrentSeason, type NormalizedMatch } from '@/lib/api-football'
 
 const RAW_FIXTURE = {
   fixture: {
@@ -13,6 +13,21 @@ const RAW_FIXTURE = {
     away: { id: 49, name: 'Chelsea' },
   },
   goals: { home: 2, away: 1 },
+}
+
+const RAW_UPCOMING = {
+  fixture: {
+    id: 200,
+    date: '2026-04-01T19:00:00+00:00',
+    status: { short: 'NS', elapsed: null },
+    venue: { name: 'Camp Nou' },
+  },
+  league: { id: 140, round: 'Regular Season - 29' },
+  teams: {
+    home: { id: 529, name: 'Barcelona' },
+    away: { id: 536, name: 'Sevilla' },
+  },
+  goals: { home: null, away: null },
 }
 
 const RAW_STANDING = {
@@ -122,5 +137,41 @@ describe('fetchStandings', () => {
       goalDifference: 38,
       points: 62,
     })
+  })
+})
+
+describe('fetchFixtures', () => {
+  beforeEach(() => {
+    process.env.APIFOOTBALL_KEY = 'test-key'
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ response: [RAW_UPCOMING] }),
+    })
+  })
+
+  afterEach(() => {
+    jest.resetAllMocks()
+    delete process.env.APIFOOTBALL_KEY
+  })
+
+  it('calls fixtures endpoint with from/to/status params', async () => {
+    await fetchFixtures(140, 2025, '2026-03-31', '2026-04-07')
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://v3.football.api-sports.io/fixtures?league=140&season=2025&from=2026-03-31&to=2026-04-07&status=NS',
+      expect.anything()
+    )
+  })
+
+  it('returns normalized fixtures with YYYY-MM-DD date', async () => {
+    const fixtures = await fetchFixtures(140, 2025, '2026-03-31', '2026-04-07')
+    expect(fixtures).toHaveLength(1)
+    expect(fixtures[0]).toMatchObject({
+      id: 200,
+      date: '2026-04-01',
+      homeTeam: { id: 529, name: 'Barcelona' },
+      awayTeam: { id: 536, name: 'Sevilla' },
+      leagueId: 140,
+    })
+    expect(fixtures[0].kickoff).toMatch(/^\d{2}:\d{2}$/)
   })
 })
