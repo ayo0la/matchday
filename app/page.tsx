@@ -1,66 +1,68 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
 
-export default function Home() {
+import { useState, useEffect, useCallback } from 'react'
+import Nav from '@/components/Nav'
+import LeagueFilter from '@/components/LeagueFilter'
+import MatchCard from '@/components/MatchCard'
+import ErrorState from '@/components/ErrorState'
+import EmptyState from '@/components/EmptyState'
+import { LIVE_STATUSES, LEAGUES } from '@/lib/leagues'
+import type { NormalizedMatch } from '@/lib/api-football'
+
+const DEFAULT_LEAGUE = LEAGUES[0].id // Premier League
+
+function sortMatches(matches: NormalizedMatch[]): NormalizedMatch[] {
+  const order = (m: NormalizedMatch) =>
+    LIVE_STATUSES.has(m.status) ? 0 : m.status === 'NS' ? 1 : 2
+  return [...matches].sort((a, b) => order(a) - order(b))
+}
+
+export default function ScoresPage() {
+  const [selectedLeague, setSelectedLeague] = useState(DEFAULT_LEAGUE)
+  const [matches, setMatches] = useState<NormalizedMatch[]>([])
+  const [error, setError] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  const load = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/scores?league=${selectedLeague}`)
+      if (!res.ok) throw new Error()
+      const data: NormalizedMatch[] = await res.json()
+      setMatches(sortMatches(data))
+      setError(false)
+    } catch {
+      setError(true)
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedLeague])
+
+  useEffect(() => {
+    setLoading(true)
+    load()
+    const id = setInterval(load, 60_000)
+    return () => clearInterval(id)
+  }, [load])
+
+  const hasLive = matches.some((m) => LIVE_STATUSES.has(m.status))
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <>
+      <Nav active="scores" hasLive={hasLive} />
+      <LeagueFilter selected={selectedLeague} onChange={setSelectedLeague} />
+
+      <main style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {error && <ErrorState />}
+        {!error && !loading && matches.length === 0 && (
+          <EmptyState message="No matches today for this league." />
+        )}
+        {matches.map((m) => <MatchCard key={m.id} match={m} />)}
       </main>
-    </div>
-  );
+
+      <footer style={{ padding: '12px 24px', borderTop: '1px solid var(--border-divider)', display: 'flex', justifyContent: 'space-between' }}>
+        <span style={{ color: '#333', fontSize: 10, letterSpacing: 1 }}>DATA: API-FOOTBALL</span>
+        <span style={{ color: '#333', fontSize: 10 }}>REFRESHES EVERY 60s</span>
+      </footer>
+    </>
+  )
 }
