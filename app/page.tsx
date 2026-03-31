@@ -18,7 +18,7 @@ function sortMatches(matches: NormalizedMatch[]): NormalizedMatch[] {
 }
 
 export default function ScoresPage() {
-  const [selectedLeague, setSelectedLeague] = useState(DEFAULT_LEAGUE)
+  const [selectedLeague, setSelectedLeague] = useState<number>(DEFAULT_LEAGUE)
   const [matches, setMatches] = useState<NormalizedMatch[]>([])
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)

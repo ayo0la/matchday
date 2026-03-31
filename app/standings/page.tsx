@@ -12,7 +12,7 @@ import type { NormalizedStanding } from '@/lib/api-football'
 const DEFAULT_LEAGUE = LEAGUES[0].id
 
 export default function StandingsPage() {
-  const [selectedLeague, setSelectedLeague] = useState(DEFAULT_LEAGUE)
+  const [selectedLeague, setSelectedLeague] = useState<number>(DEFAULT_LEAGUE)
   const [standings, setStandings] = useState<NormalizedStanding[]>([])
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)

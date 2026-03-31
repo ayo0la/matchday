@@ -1,0 +1,17 @@
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team { display: flex; align-items: center; gap: 8px; flex: 1; }
+.teamAway { justify-content: flex-end; }
+.teamName { font-size: 13px; font-weight: 500; color: var(--text); }
+
+.middle { text-align: center; min-width: 90px; }
+.kickoff { font-size: 11px; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 2px; }
+.leagueTag { font-size: 9px; color: #333; letter-spacing: 1px; }
