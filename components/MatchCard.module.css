@@ -1,0 +1,64 @@
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+
+.cardLive { border-left: 3px solid var(--red); }
+
+.cardFinished {
+  background: var(--card-bg-dim);
+  border-color: #111122;
+  opacity: 0.7;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.teamName { font-size: 14px; font-weight: 500; color: var(--text); }
+.teamNameDim { color: var(--text-secondary); }
+
+.teamAway { justify-content: flex-end; }
+
+.scoreBlock { text-align: center; min-width: 100px; }
+
+.score {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: var(--text);
+}
+
+.scoreDim { color: var(--text-secondary); }
+
+.minute {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--red);
+  margin-top: 2px;
+}
+
+.minuteDim { color: var(--text-muted); }
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-divider);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
