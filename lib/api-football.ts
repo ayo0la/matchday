@@ -48,7 +48,7 @@ export interface NormalizedStanding {
 export interface NormalizedFixture {
   id: number
   date: string    // YYYY-MM-DD
-  kickoff: string // HH:MM (UTC)
+  kickoff: string // HH:MM (local time of kickoff)
   homeTeam: { id: number; name: string }
   awayTeam: { id: number; name: string }
   leagueId: number

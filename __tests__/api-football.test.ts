@@ -40,7 +40,10 @@ describe('fetchScores', () => {
     })
   })
 
-  afterEach(() => jest.resetAllMocks())
+  afterEach(() => {
+    jest.resetAllMocks()
+    delete process.env.APIFOOTBALL_KEY
+  })
 
   it('calls API-Football fixtures endpoint with correct params', async () => {
     await fetchScores(39, 2025, '2026-03-31')
