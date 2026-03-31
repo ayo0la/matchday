@@ -1,0 +1,53 @@
+.wrap { padding: 0 24px 20px; }
+
+.header {
+  display: grid;
+  grid-template-columns: 28px 1fr 36px 36px 36px 36px 36px 44px;
+  gap: 4px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--border-divider);
+}
+
+.headerCell {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.headerCell:nth-child(2) { text-align: left; }
+
+.row {
+  display: grid;
+  grid-template-columns: 28px 1fr 36px 36px 36px 36px 36px 44px;
+  gap: 4px;
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border-divider);
+  border-left: 3px solid transparent;
+}
+
+.rowBarca { background: rgba(0, 77, 152, 0.12); }
+.rowUcl   { border-left-color: var(--blue); }
+.rowEuropa { border-left-color: var(--europa); }
+.rowRel   { border-left-color: var(--red); }
+
+.rank { font-size: 12px; color: var(--text-secondary); }
+.rankZone { color: var(--blue); font-weight: 700; }
+.rankRel  { color: var(--red); }
+
+.clubCell { display: flex; align-items: center; gap: 8px; }
+.clubName { font-size: 12px; color: var(--text); font-weight: 500; }
+.clubNameDim { color: var(--text-secondary); font-weight: 400; }
+
+.cell { font-size: 12px; color: var(--text-secondary); text-align: center; }
+.pts  { font-size: 13px; font-weight: 700; color: var(--text); text-align: center; }
+
+.legend {
+  display: flex;
+  gap: 20px;
+  padding: 10px 8px 0;
+}
+
+.legendItem { display: flex; align-items: center; gap: 6px; }
+.legendDot  { width: 10px; height: 10px; border-radius: 2px; }
+.legendLabel { font-size: 10px; color: var(--text-muted); }
