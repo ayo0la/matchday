@@ -2,11 +2,11 @@ import { getKitColor } from '@/lib/team-colors'
 
 describe('getKitColor', () => {
   it('returns home color for Barcelona home', () => {
-    expect(getKitColor(529, true)).toBe('#004D98')
+    expect(getKitColor(81, true)).toBe('#004D98')
   })
 
   it('returns away color for Barcelona away', () => {
-    expect(getKitColor(529, false)).toBe('#A50044')
+    expect(getKitColor(81, false)).toBe('#A50044')
   })
 
   it('returns fallback for unknown team', () => {

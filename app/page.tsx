@@ -18,7 +18,7 @@ function sortMatches(matches: NormalizedMatch[]): NormalizedMatch[] {
 }
 
 export default function ScoresPage() {
-  const [selectedLeague, setSelectedLeague] = useState<number>(DEFAULT_LEAGUE)
+  const [selectedLeague, setSelectedLeague] = useState<string>(DEFAULT_LEAGUE)
   const [matches, setMatches] = useState<NormalizedMatch[]>([])
   const [error, setError] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -60,7 +60,7 @@ export default function ScoresPage() {
       </main>
 
       <footer style={{ padding: '12px 24px', borderTop: '1px solid var(--border-divider)', textAlign: 'center' }}>
-        <span style={{ color: '#333', fontSize: 10, letterSpacing: 1 }}>DATA: API-FOOTBALL · REFRESHES EVERY 60s</span>
+        <span style={{ color: '#333', fontSize: 10, letterSpacing: 1 }}>DATA: FOOTBALL-DATA.ORG · REFRESHES EVERY 60s</span>
       </footer>
     </>
   )

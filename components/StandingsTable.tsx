@@ -5,7 +5,7 @@ import styles from './StandingsTable.module.css'
 
 interface StandingsTableProps {
   standings: NormalizedStanding[]
-  leagueId: number
+  leagueId: string
 }
 
 export default function StandingsTable({ standings, leagueId }: StandingsTableProps) {

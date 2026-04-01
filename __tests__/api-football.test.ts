@@ -1,135 +1,133 @@
-import { fetchScores, fetchStandings, fetchFixtures, getCurrentSeason, type NormalizedMatch } from '@/lib/api-football'
+import { fetchScores, fetchStandings, fetchFixtures, type NormalizedMatch } from '@/lib/api-football'
 
-const RAW_FIXTURE = {
-  fixture: {
-    id: 100,
-    date: '2026-03-31T20:00:00+00:00',
-    status: { short: '1H', elapsed: 34 },
-    venue: { name: 'Emirates Stadium' },
-  },
-  league: { id: 39, round: 'Regular Season - 28' },
-  teams: {
-    home: { id: 42, name: 'Arsenal' },
-    away: { id: 49, name: 'Chelsea' },
-  },
-  goals: { home: 2, away: 1 },
+const RAW_MATCH = {
+  id: 100,
+  utcDate: '2026-03-31T20:00:00Z',
+  status: 'IN_PLAY',
+  matchday: 28,
+  stage: 'REGULAR_SEASON',
+  homeTeam: { id: 57, name: 'Arsenal' },
+  awayTeam: { id: 61, name: 'Chelsea' },
+  score: { fullTime: { home: 2, away: 1 } },
+  competition: { code: 'PL' },
 }
 
 const RAW_UPCOMING = {
-  fixture: {
-    id: 200,
-    date: '2026-04-01T19:00:00+00:00',
-    status: { short: 'NS', elapsed: null },
-    venue: { name: 'Camp Nou' },
-  },
-  league: { id: 140, round: 'Regular Season - 29' },
-  teams: {
-    home: { id: 529, name: 'Barcelona' },
-    away: { id: 536, name: 'Sevilla' },
-  },
-  goals: { home: null, away: null },
+  id: 200,
+  utcDate: '2026-04-01T19:00:00Z',
+  status: 'TIMED',
+  matchday: 29,
+  stage: 'REGULAR_SEASON',
+  homeTeam: { id: 81, name: 'FC Barcelona' },
+  awayTeam: { id: 559, name: 'Sevilla FC' },
+  score: { fullTime: { home: null, away: null } },
+  competition: { code: 'PD' },
 }
 
 const RAW_STANDING = {
-  rank: 1,
-  team: { id: 529, name: 'Barcelona' },
-  all: { played: 28, win: 19, draw: 5, lose: 4 },
-  goalsDiff: 38,
+  position: 1,
+  team: { id: 81, name: 'FC Barcelona' },
+  playedGames: 28,
+  won: 19,
+  draw: 5,
+  lost: 4,
+  goalDifference: 38,
   points: 62,
 }
 
-describe('getCurrentSeason', () => {
-  it('returns previous year when month is before July', () => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-03-31'))
-    expect(getCurrentSeason()).toBe(2025)
-    jest.useRealTimers()
-  })
-
-  it('returns current year when month is July or later', () => {
-    jest.useFakeTimers()
-    jest.setSystemTime(new Date('2026-08-01'))
-    expect(getCurrentSeason()).toBe(2026)
-    jest.useRealTimers()
-  })
-})
-
 describe('fetchScores', () => {
   beforeEach(() => {
-    process.env.APIFOOTBALL_KEY = 'test-key'
+    process.env.FOOTBALLDATA_KEY = 'test-key'
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ response: [RAW_FIXTURE] }),
+      json: () => Promise.resolve({ matches: [RAW_MATCH] }),
     })
   })
 
   afterEach(() => {
     jest.resetAllMocks()
-    delete process.env.APIFOOTBALL_KEY
+    delete process.env.FOOTBALLDATA_KEY
   })
 
-  it('calls API-Football fixtures endpoint with correct params', async () => {
-    await fetchScores(39, 2025, '2026-03-31')
+  it('calls football-data.org matches endpoint with correct params', async () => {
+    await fetchScores('PL', '2026-03-31')
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://v3.football.api-sports.io/fixtures?league=39&season=2025&date=2026-03-31',
-      expect.objectContaining({ headers: expect.objectContaining({ 'x-apisports-key': expect.any(String) }) })
+      'https://api.football-data.org/v4/competitions/PL/matches?dateFrom=2026-03-31&dateTo=2026-03-31',
+      expect.objectContaining({ headers: expect.objectContaining({ 'X-Auth-Token': expect.any(String) }) })
     )
   })
 
-  it('returns normalized matches', async () => {
-    const matches = await fetchScores(39, 2025, '2026-03-31')
+  it('returns normalized matches with status mapped from IN_PLAY to 1H', async () => {
+    const matches = await fetchScores('PL', '2026-03-31')
     expect(matches).toHaveLength(1)
     expect(matches[0]).toMatchObject<Partial<NormalizedMatch>>({
       id: 100,
-      homeTeam: { id: 42, name: 'Arsenal' },
-      awayTeam: { id: 49, name: 'Chelsea' },
+      homeTeam: { id: 57, name: 'Arsenal' },
+      awayTeam: { id: 61, name: 'Chelsea' },
       homeScore: 2,
       awayScore: 1,
       status: '1H',
-      minute: 34,
-      stadium: 'Emirates Stadium',
-      round: 'Regular Season - 28',
-      leagueId: 39,
+      leagueId: 'PL',
+      round: 'Matchday 28',
     })
+  })
+
+  it('maps TIMED status to NS', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ matches: [RAW_UPCOMING] }),
+    })
+    const matches = await fetchScores('PD', '2026-04-01')
+    expect(matches[0].status).toBe('NS')
+  })
+
+  it('maps FINISHED status to FT', async () => {
+    const finishedMatch = { ...RAW_MATCH, status: 'FINISHED' }
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ matches: [finishedMatch] }),
+    })
+    const matches = await fetchScores('PL', '2026-03-31')
+    expect(matches[0].status).toBe('FT')
   })
 
   it('throws on non-ok response', async () => {
     global.fetch = jest.fn().mockResolvedValue({ ok: false, status: 429 })
-    await expect(fetchScores(39, 2025, '2026-03-31')).rejects.toThrow('API-Football error: 429')
+    await expect(fetchScores('PL', '2026-03-31')).rejects.toThrow('football-data.org error: 429')
   })
 })
 
 describe('fetchStandings', () => {
   beforeEach(() => {
-    process.env.APIFOOTBALL_KEY = 'test-key'
+    process.env.FOOTBALLDATA_KEY = 'test-key'
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({
-        response: [{ league: { standings: [[RAW_STANDING]] } }]
+        standings: [{ type: 'TOTAL', table: [RAW_STANDING] }]
       }),
     })
   })
 
   afterEach(() => {
     jest.resetAllMocks()
-    delete process.env.APIFOOTBALL_KEY
+    delete process.env.FOOTBALLDATA_KEY
   })
 
-  it('calls standings endpoint with correct params', async () => {
-    await fetchStandings(140, 2025)
+  it('calls standings endpoint with competition code', async () => {
+    await fetchStandings('PD')
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://v3.football.api-sports.io/standings?league=140&season=2025',
+      'https://api.football-data.org/v4/competitions/PD/standings',
       expect.anything()
     )
   })
 
-  it('returns normalized standings', async () => {
-    const standings = await fetchStandings(140, 2025)
+  it('returns normalized standings from TOTAL table', async () => {
+    const standings = await fetchStandings('PD')
     expect(standings).toHaveLength(1)
     expect(standings[0]).toMatchObject({
       rank: 1,
-      teamId: 529,
-      teamName: 'Barcelona',
+      teamId: 81,
+      teamName: 'FC Barcelona',
       played: 28,
       wins: 19,
       draws: 5,
@@ -138,39 +136,54 @@ describe('fetchStandings', () => {
       points: 62,
     })
   })
+
+  it('picks TOTAL type when multiple types present', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({
+        standings: [
+          { type: 'HOME', table: [] },
+          { type: 'TOTAL', table: [RAW_STANDING] },
+          { type: 'AWAY', table: [] },
+        ]
+      }),
+    })
+    const standings = await fetchStandings('PD')
+    expect(standings).toHaveLength(1)
+  })
 })
 
 describe('fetchFixtures', () => {
   beforeEach(() => {
-    process.env.APIFOOTBALL_KEY = 'test-key'
+    process.env.FOOTBALLDATA_KEY = 'test-key'
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
-      json: () => Promise.resolve({ response: [RAW_UPCOMING] }),
+      json: () => Promise.resolve({ matches: [RAW_UPCOMING] }),
     })
   })
 
   afterEach(() => {
     jest.resetAllMocks()
-    delete process.env.APIFOOTBALL_KEY
+    delete process.env.FOOTBALLDATA_KEY
   })
 
-  it('calls fixtures endpoint with from/to/status params', async () => {
-    await fetchFixtures(140, 2025, '2026-03-31', '2026-04-07')
+  it('calls matches endpoint with TIMED,SCHEDULED status and date range', async () => {
+    await fetchFixtures('PD', '2026-03-31', '2026-04-07')
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://v3.football.api-sports.io/fixtures?league=140&season=2025&from=2026-03-31&to=2026-04-07&status=NS',
+      'https://api.football-data.org/v4/competitions/PD/matches?status=TIMED,SCHEDULED&dateFrom=2026-03-31&dateTo=2026-04-07',
       expect.anything()
     )
   })
 
   it('returns normalized fixtures with YYYY-MM-DD date', async () => {
-    const fixtures = await fetchFixtures(140, 2025, '2026-03-31', '2026-04-07')
+    const fixtures = await fetchFixtures('PD', '2026-03-31', '2026-04-07')
     expect(fixtures).toHaveLength(1)
     expect(fixtures[0]).toMatchObject({
       id: 200,
       date: '2026-04-01',
-      homeTeam: { id: 529, name: 'Barcelona' },
-      awayTeam: { id: 536, name: 'Sevilla' },
-      leagueId: 140,
+      homeTeam: { id: 81, name: 'FC Barcelona' },
+      awayTeam: { id: 559, name: 'Sevilla FC' },
+      leagueId: 'PD',
     })
     expect(fixtures[0].kickoff).toMatch(/^\d{2}:\d{2}$/)
   })

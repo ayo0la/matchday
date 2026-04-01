@@ -2,14 +2,14 @@ import { LEAGUES } from '@/lib/leagues'
 import styles from './LeagueFilter.module.css'
 
 interface LeagueFilterProps {
-  selected: number
-  onChange: (leagueId: number) => void
+  selected: string
+  onChange: (leagueId: string) => void
   includeAll?: boolean
 }
 
 export default function LeagueFilter({ selected, onChange, includeAll = false }: LeagueFilterProps) {
   const options = includeAll
-    ? [{ id: 0, name: 'All Leagues' }, ...LEAGUES]
+    ? [{ id: '', name: 'All Leagues' }, ...LEAGUES]
     : [...LEAGUES]
 
   return (

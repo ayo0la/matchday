@@ -9,7 +9,7 @@ import EmptyState from '@/components/EmptyState'
 import { LEAGUES, BARCA_ID } from '@/lib/leagues'
 import type { NormalizedFixture } from '@/lib/api-football'
 
-const ALL = 0
+const ALL = ''
 
 function getDateLabel(dateStr: string): string {
   const today = new Date().toISOString().slice(0, 10)

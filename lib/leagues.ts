@@ -1,28 +1,28 @@
-export const BARCA_ID = 529
+export const BARCA_ID = 81 // football-data.org ID for FC Barcelona
 
 export const LEAGUES = [
-  { id: 39,  name: 'Premier League' },
-  { id: 140, name: 'La Liga' },
-  { id: 78,  name: 'Bundesliga' },
-  { id: 135, name: 'Serie A' },
-  { id: 61,  name: 'Ligue 1' },
-  { id: 2,   name: 'Champions League' },
+  { id: 'PL',  name: 'Premier League' },
+  { id: 'PD',  name: 'La Liga' },
+  { id: 'BL1', name: 'Bundesliga' },
+  { id: 'SA',  name: 'Serie A' },
+  { id: 'FL1', name: 'Ligue 1' },
+  { id: 'CL',  name: 'Champions League' },
 ] as const
 
 export type LeagueId = typeof LEAGUES[number]['id']
 
 // Zone ranges per league (ranks are 1-indexed, inclusive)
-export const STANDINGS_ZONES: Record<number, {
+export const STANDINGS_ZONES: Record<string, {
   ucl: number[]
   europa: number[]
   relegation: number[]
 }> = {
-  39:  { ucl: [1,2,3,4],   europa: [5,6],   relegation: [18,19,20] }, // PL
-  140: { ucl: [1,2,3,4],   europa: [5,6,7], relegation: [18,19,20] }, // La Liga
-  78:  { ucl: [1,2,3,4],   europa: [5,6],   relegation: [17,18]    }, // Bundesliga
-  135: { ucl: [1,2,3,4],   europa: [5,6,7], relegation: [18,19,20] }, // Serie A
-  61:  { ucl: [1,2,3],     europa: [4,5,6], relegation: [17,18]    }, // Ligue 1
-  2:   { ucl: [],          europa: [],      relegation: []          }, // UCL
+  PL:  { ucl: [1,2,3,4],   europa: [5,6],   relegation: [18,19,20] },
+  PD:  { ucl: [1,2,3,4],   europa: [5,6,7], relegation: [18,19,20] },
+  BL1: { ucl: [1,2,3,4],   europa: [5,6],   relegation: [17,18]    },
+  SA:  { ucl: [1,2,3,4],   europa: [5,6,7], relegation: [18,19,20] },
+  FL1: { ucl: [1,2,3],     europa: [4,5,6], relegation: [17,18]    },
+  CL:  { ucl: [],          europa: [],      relegation: []          },
 }
 
 export const LIVE_STATUSES = new Set(['1H','HT','2H','ET','P','BT'])
