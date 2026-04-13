@@ -9,10 +9,10 @@ const DEFAULT: NotificationPrefs = { mutedLeagues: [], favoriteTeams: [] }
 export function getPrefs(): NotificationPrefs {
   try {
     const raw = localStorage.getItem(KEY)
-    if (!raw) return DEFAULT
+    if (!raw) return { ...DEFAULT }
     return { ...DEFAULT, ...JSON.parse(raw) }
   } catch {
-    return DEFAULT
+    return { ...DEFAULT }
   }
 }
 
