@@ -54,6 +54,9 @@ export default function ScoresPage() {
   const { prefs, toggleLeague, toggleFavoriteTeam } = useNotificationPrefs()
   const { toasts, addToast, dismissToast } = useToasts()
 
+  const prefsRef = useRef(prefs)
+  useEffect(() => { prefsRef.current = prefs }, [prefs])
+
   const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/scores?league=${selectedLeague}`)
@@ -63,10 +66,10 @@ export default function ScoresPage() {
 
       const events = diffMatches(prevMatches.current, data)
       for (const event of events) {
-        if (prefs.mutedLeagues.includes(event.leagueId)) continue
+        if (prefsRef.current.mutedLeagues.includes(event.leagueId)) continue
         const isFavorite =
-          prefs.favoriteTeams.includes(event.homeTeam.id) ||
-          prefs.favoriteTeams.includes(event.awayTeam.id)
+          prefsRef.current.favoriteTeams.includes(event.homeTeam.id) ||
+          prefsRef.current.favoriteTeams.includes(event.awayTeam.id)
         addToast(event, isFavorite)
         fireOsNotification(event)
       }
@@ -79,7 +82,7 @@ export default function ScoresPage() {
     } finally {
       setLoading(false)
     }
-  }, [selectedLeague, prefs, addToast])
+  }, [selectedLeague, addToast])  // prefs removed — read via prefsRef instead
 
   useEffect(() => {
     setLoading(true)
