@@ -74,7 +74,28 @@
   color: var(--red);
 }
 
-.placeholder { min-width: 60px; }
+.right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 60px;
+  justify-content: flex-end;
+}
+
+.bellBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.bellBtn:hover {
+  opacity: 1;
+}
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
