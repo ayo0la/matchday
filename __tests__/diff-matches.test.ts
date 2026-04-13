@@ -1,4 +1,4 @@
-import { diffMatches, type NotificationEvent } from '@/lib/diff-matches'
+import { diffMatches, getEventLabel, type NotificationEvent } from '@/lib/diff-matches'
 import type { NormalizedMatch } from '@/lib/api-football'
 
 function makeMatch(overrides: Partial<NormalizedMatch> = {}): NormalizedMatch {
@@ -17,6 +17,24 @@ function makeMatch(overrides: Partial<NormalizedMatch> = {}): NormalizedMatch {
     ...overrides,
   }
 }
+
+describe('getEventLabel', () => {
+  it('returns GOAL for GOAL type', () => {
+    expect(getEventLabel('GOAL')).toBe('GOAL')
+  })
+  it('returns KICK OFF for KICK_OFF type', () => {
+    expect(getEventLabel('KICK_OFF')).toBe('KICK OFF')
+  })
+  it('returns HALF TIME for HALF_TIME type', () => {
+    expect(getEventLabel('HALF_TIME')).toBe('HALF TIME')
+  })
+  it('returns FULL TIME for FULL_TIME type', () => {
+    expect(getEventLabel('FULL_TIME')).toBe('FULL TIME')
+  })
+  it('returns UPDATE for STATUS_CHANGE type', () => {
+    expect(getEventLabel('STATUS_CHANGE')).toBe('UPDATE')
+  })
+})
 
 describe('diffMatches', () => {
   it('returns empty array when prev and next are identical', () => {
