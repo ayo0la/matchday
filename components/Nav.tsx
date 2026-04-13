@@ -4,9 +4,10 @@ import styles from './Nav.module.css'
 interface NavProps {
   active: 'scores' | 'standings' | 'fixtures'
   hasLive?: boolean
+  onBellClick?: () => void
 }
 
-export default function Nav({ active, hasLive = false }: NavProps) {
+export default function Nav({ active, hasLive = false, onBellClick }: NavProps) {
   return (
     <nav className={styles.nav}>
       <div className={styles.logo}>
@@ -26,14 +27,19 @@ export default function Nav({ active, hasLive = false }: NavProps) {
         </Link>
       </div>
 
-      {hasLive ? (
-        <div className={styles.liveIndicator}>
-          <div className={styles.liveDot} />
-          <span className={styles.liveLabel}>LIVE</span>
-        </div>
-      ) : (
-        <div className={styles.placeholder} />
-      )}
+      <div className={styles.right}>
+        {hasLive && (
+          <div className={styles.liveIndicator}>
+            <div className={styles.liveDot} />
+            <span className={styles.liveLabel}>LIVE</span>
+          </div>
+        )}
+        {onBellClick && (
+          <button className={styles.bellBtn} onClick={onBellClick} aria-label="Notification settings">
+            🔔
+          </button>
+        )}
+      </div>
     </nav>
   )
 }
